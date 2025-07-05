@@ -1,0 +1,79 @@
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git push -u origin main
+model User {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String   @unique
+  password    String?
+  listings    Listing[]
+  bookings    Booking[]
+  createdAt   DateTime @default(now())
+}
+
+model Listing {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  location    String
+  price       Int
+  images      String[]
+  host        User      @relation(fields: [hostId], references: [id])
+  hostId      String
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+}
+
+model Booking {
+  id         String   @id @default(cuid())
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  listingId  String
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  checkIn    DateTime
+  checkOut   DateTime
+  totalPrice Int
+  paymentStatus String @default("pending") // from Stripe webhook
+  createdAt  DateTime @default(now())
+}
+booking-platform/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx                     // Home
+│   ├── search/page.tsx             // Search results
+│   ├── listing/[id]/page.tsx       // Listing detail
+│   ├── booking/[id]/page.tsx       // Booking checkout
+│   ├── account/page.tsx            // User dashboard
+│   ├── host/
+│   │   ├── listings/page.tsx       // Host listings
+│   │   └── new/page.tsx            // Create listing
+│   └── api/
+│       ├── auth/[...nextauth].ts   // NextAuth config
+│       ├── stripe/checkout.ts      // Stripe checkout session
+│       └── stripe/webhook.ts       // Stripe webhook handler
+├── components/
+│   ├── Navbar.tsx
+│   ├── ListingCard.tsx
+│   ├── Calendar.tsx
+│   └── ...
+├── prisma/
+│   └── schema.prisma
+├── lib/
+│   ├── prisma.ts
+│   └── auth.ts
+├── styles/
+│   └── globals.css
+├── .env
+├── next.config.js
+└── package.json
+npx create-next-app booking-platform
+cd booking-platform
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+npm install prisma @prisma/client
+npm install next-auth
+npm install stripe @stripe/stripe-js
+npm install @resend/node
+npx prisma init
